@@ -1,0 +1,3 @@
+# Create placeholder files
+touch src/assets/.gitkeep
+touch public/images/.gitkeep
