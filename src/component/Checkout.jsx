@@ -23,7 +23,7 @@ const Checkout = () => {
     city: "",
     state: "",
     zip: "",
-    country: "",
+    country: "GR", // default to Greece
     agree: false,
   });
 
@@ -49,7 +49,7 @@ const Checkout = () => {
           <h1 className="font-display text-2xl font-semibold text-ink">
             Your cart is empty
           </h1>
-          <p className="mt-1 text-neutral-600">
+        <p className="mt-1 text-neutral-600">
             Add some products to proceed to checkout.
           </p>
           <Link
@@ -81,15 +81,30 @@ const Checkout = () => {
     return e;
   }
 
+  const canSubmit = (() => {
+    // compute validity without mutating state
+    const v = {};
+    if (!form.firstName.trim()) v.firstName = true;
+    if (!form.lastName.trim()) v.lastName = true;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) v.email = true;
+    if (!form.address1.trim()) v.address1 = true;
+    if (!form.city.trim()) v.city = true;
+    if (!form.zip.trim()) v.zip = true;
+    if (!form.country.trim()) v.country = true;
+    if (!form.agree) v.agree = true;
+    return !Object.keys(v).length && !submitting;
+  })();
+
   async function handleSubmit(e) {
     e.preventDefault();
+    if (submitting) return; // prevent double-submit
     const v = validate();
     setErrors(v);
     if (Object.keys(v).length) return;
 
     try {
       setSubmitting(true);
-      // Demo delay / here you'd call your API or payment provider
+      // Simulate processing; replace with API/payment call
       await new Promise((r) => setTimeout(r, 600));
       emptyCart();
       navigate("/exit");
@@ -98,27 +113,31 @@ const Checkout = () => {
     }
   }
 
+  // Build a concise error summary for screen readers
+  const errorKeys = Object.keys(errors);
+  const hasErrors = errorKeys.length > 0;
+
   return (
     <div className="mx-auto max-w-7xl p-4">
-      <h1 className="mb-6 font-display text-3xl font-semibold text-ink">
-        Checkout
-      </h1>
+      <h1 className="mb-6 font-display text-3xl font-semibold text-ink">Checkout</h1>
 
       {isAuthenticated && (
         <div className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-primary shadow-card">
-          Signed in as{" "}
-          <span className="font-medium">{user?.name}</span> ({user?.email})
+          Signed in as <span className="font-medium">{user?.name}</span> ({user?.email})
         </div>
       )}
 
+      {/* Error summary for screen readers */}
+      <div aria-live="polite" role="status" className="sr-only">
+        {hasErrors ? `Form has ${errorKeys.length} error${errorKeys.length > 1 ? "s" : ""}.` : ""}
+      </div>
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Form */}
-        <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
+        <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6" noValidate>
           {/* Contact info */}
           <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
-            <h2 className="font-display text-lg font-semibold text-ink">
-              Contact
-            </h2>
+            <h2 className="font-display text-lg font-semibold text-ink">Contact</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* First name */}
               <label className="block">
@@ -128,6 +147,7 @@ const Checkout = () => {
                   value={form.firstName}
                   onChange={handleChange}
                   autoComplete="given-name"
+                  aria-invalid={!!errors.firstName}
                   aria-describedby={errors.firstName ? "firstName-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
@@ -147,6 +167,7 @@ const Checkout = () => {
                   value={form.lastName}
                   onChange={handleChange}
                   autoComplete="family-name"
+                  aria-invalid={!!errors.lastName}
                   aria-describedby={errors.lastName ? "lastName-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
@@ -167,6 +188,7 @@ const Checkout = () => {
                   value={form.email}
                   onChange={handleChange}
                   autoComplete="email"
+                  aria-invalid={!!errors.email}
                   aria-describedby={errors.email ? "email-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
@@ -195,9 +217,7 @@ const Checkout = () => {
 
           {/* Shipping address */}
           <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
-            <h2 className="font-display text-lg font-semibold text-ink">
-              Shipping address
-            </h2>
+            <h2 className="font-display text-lg font-semibold text-ink">Shipping address</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Address 1 */}
               <label className="block sm:col-span-2">
@@ -207,6 +227,7 @@ const Checkout = () => {
                   value={form.address1}
                   onChange={handleChange}
                   autoComplete="address-line1"
+                  aria-invalid={!!errors.address1}
                   aria-describedby={errors.address1 ? "address1-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
@@ -238,6 +259,7 @@ const Checkout = () => {
                   value={form.city}
                   onChange={handleChange}
                   autoComplete="address-level2"
+                  aria-invalid={!!errors.city}
                   aria-describedby={errors.city ? "city-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
@@ -269,6 +291,7 @@ const Checkout = () => {
                   value={form.zip}
                   onChange={handleChange}
                   autoComplete="postal-code"
+                  aria-invalid={!!errors.zip}
                   aria-describedby={errors.zip ? "zip-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
@@ -287,6 +310,7 @@ const Checkout = () => {
                   name="country"
                   value={form.country}
                   onChange={handleChange}
+                  aria-invalid={!!errors.country}
                   aria-describedby={errors.country ? "country-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
@@ -299,7 +323,6 @@ const Checkout = () => {
                   <option value="FR">France</option>
                   <option value="ES">Spain</option>
                   <option value="IT">Italy</option>
-                  {/* add more as needed */}
                 </select>
                 {errors.country && (
                   <p id="country-error" className="mt-1 text-xs text-danger">
@@ -329,8 +352,9 @@ const Checkout = () => {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={!canSubmit}
             className="mt-2 inline-flex items-center justify-center rounded-xl bg-ink px-5 py-3 text-white shadow-card disabled:opacity-60 hover:bg-neutral-900"
+            aria-busy={submitting ? "true" : "false"}
           >
             {submitting ? "Processing…" : "Place order"}
           </button>
@@ -338,9 +362,7 @@ const Checkout = () => {
 
         {/* Order summary */}
         <aside className="h-fit rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
-          <h2 className="mb-3 font-display text-lg font-semibold text-ink">
-            Order summary
-          </h2>
+          <h2 className="mb-3 font-display text-lg font-semibold text-ink">Order summary</h2>
           <ul className="divide-y">
             {items.map((it) => (
               <li key={it.id} className="py-3 flex items-start justify-between">
