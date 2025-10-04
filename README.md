@@ -78,7 +78,7 @@ src/
     prodData.js
   lib/
     auth.js        # auth modes + hooks + guards
-    config.js      # env-driven config (incl. SUPPORT_EMAIL)
+    config.js      # env-driven config
     format.js      # currency helpers
   index.css
   index.js
