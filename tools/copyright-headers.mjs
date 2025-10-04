@@ -15,15 +15,15 @@
 
 import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
-import { extname } from "node:path";
+import { extname, basename } from "node:path";
 
 const args = parseArgs(process.argv.slice(2), {
   owner: { type: "string", required: true },
-  year: { type: "string" }, // force single year
-  "default-start": { type: "string" }, // fallback start year if git history missing
+  year: { type: "string" },                // force single year
+  "default-start": { type: "string" },     // fallback start year if git history missing
   "spdx-id": { type: "string", default: "GPL-3.0-or-later" },
   "no-range": { type: "boolean", default: false }, // when true, only use single year
-  check: { type: "boolean", default: false } // dry-run: report missing/mismatch
+  check: { type: "boolean", default: false }       // dry-run: report missing/mismatch
 });
 
 const OWNER = args.owner;
@@ -33,6 +33,7 @@ const DEFAULT_START = args["default-start"] ? String(args["default-start"]) : nu
 const USE_RANGE = !args["no-range"];
 const CURRENT_YEAR = new Date().getFullYear();
 
+/** Comment styles per extension (NO markdown here) */
 const EXT_STYLE = {
   ".js": "block",
   ".jsx": "block",
@@ -52,8 +53,26 @@ const EXT_STYLE = {
   ".env": "line",
   ".env.local": "line",
   ".env.example": "line",
-  ".txt": "line",
+  ".txt": "line"
 };
+
+/** Never touch these extensions / files */
+const SKIP_EXT = new Set([".json", ".jsonc", ".json5", ".md"]);
+const SKIP_FILES = new Set([
+  // common JSON configs
+  ".eslintrc.json",
+  "package.json",
+  "package-lock.json",
+  "tsconfig.json",
+  "jsconfig.json",
+  ".prettierrc",
+  ".prettierrc.json",
+  ".babelrc",
+  ".babelrc.json",
+  // generated or locky bits (even if extless)
+  "pnpm-lock.yaml",
+  "yarn.lock"
+]);
 
 function main() {
   const files = listTrackedFiles().filter(includeFile);
@@ -95,17 +114,30 @@ function listTrackedFiles() {
 
 function includeFile(file) {
   if (/^(node_modules|build|dist)\//.test(file)) return false;
+
   const ext = extname(file).toLowerCase();
+  const base = basename(file);
+
+  // hard skips
+  if (SKIP_EXT.has(ext)) return false;
+  if (SKIP_FILES.has(base)) return false;
+
+  // known styles
   if (EXT_STYLE[ext]) return true;
 
-  // dotfiles without ext (e.g., .gitignore, .env)
-  if (/^\./.test(file) && !/\.(png|jpg|jpeg|gif|ico|lock|map|pdf|zip|gz|svgz)$/i.test(file)) return true;
+  // dotfiles without ext (e.g., .gitignore, .env) — allow texty ones
+  if (/^\./.test(file) && !/\.(png|jpe?g|gif|ico|lock|map|pdf|zip|gz|svgz|woff2?|ttf|eot|bin|exe)$/i.test(file)) {
+    // but don't let dotfile JSON/MD sneak through
+    if (SKIP_EXT.has(ext) || SKIP_FILES.has(base)) return false;
+    return true;
+  }
 
   return false;
 }
 
 function pickStyle(file) {
   const ext = extname(file).toLowerCase();
+  if (SKIP_EXT.has(ext)) return null;
   return EXT_STYLE[ext] || (file.startsWith(".") ? "line" : null);
 }
 
@@ -147,8 +179,6 @@ function formatHeader(lines, style) {
       return "<!--\n  " + lines.join("\n  ") + "\n-->\n";
     case "xml":
       return "<!--\n  " + lines.join("\n  ") + "\n-->\n";
-    case "md":
-      return "> " + lines[0] + " — " + lines[1] + "\n\n";
     case "line":
     default:
       return "# " + lines[0] + "\n# " + lines[1] + "\n";
@@ -156,7 +186,7 @@ function formatHeader(lines, style) {
 }
 
 function applyHeader(file, content, header, style) {
-  // Special-case XML prolog: insert after <?xml ...?>
+  // XML prolog: insert after <?xml ...?>
   if (style === "xml") {
     const trimmed = content.trimStart();
     if (/^<\?xml\b/.test(trimmed)) {
@@ -166,12 +196,12 @@ function applyHeader(file, content, header, style) {
       const withoutHeader = stripExistingHeader(existing);
       const newContent = content.slice(0, after) + "\n" + header + withoutHeader;
       const hasHeader = existing !== withoutHeader;
-      const needsUpdate = hasHeader; // we rewrote it
+      const needsUpdate = hasHeader;
       return { hasHeader, needsUpdate, newContent };
     }
   }
 
-  // Special-case shebang for shell or scripts: keep shebang on top
+  // Shebang: keep it first
   if (style === "line" && content.startsWith("#!")) {
     const nl = content.indexOf("\n");
     const shebang = nl >= 0 ? content.slice(0, nl + 1) : content + "\n";
@@ -185,22 +215,17 @@ function applyHeader(file, content, header, style) {
 
   const withoutHeader = stripExistingHeader(content);
   const hasHeader = withoutHeader.length !== content.length;
-  const needsUpdate = hasHeader; // simplest: if header exists, we replace to be sure
+  const needsUpdate = hasHeader; // replace if present to normalize
   const newContent = header + withoutHeader;
   return { hasHeader, needsUpdate, newContent };
 }
 
 function stripExistingHeader(content) {
-  // Remove our recognizable headers at the very top only
+  // Remove recognizable headers only at the very top
   const patterns = [
-    // block comment
-    /^\/\*[\s\S]*?\*\/\s*/,
-    // HTML/XML comment
-    /^<!--[\s\S]*?-->\s*/,
-    // line comments (# ...)
-    /^(?:# .*\n)+/,
-    // markdown quote
-    /^(?:> .*\n)+/
+    /^\/\*[\s\S]*?\*\/\s*/,           // block comment
+    /^<!--[\s\S]*?-->\s*/,            // HTML/XML comment
+    /^(?:# .*\n)+/                    // line comments (# ...)
   ];
 
   let out = content;
@@ -244,7 +269,7 @@ function parseArgs(argv, schema) {
   return res;
 }
 
-// Top-level execution with try/catch (avoids .catch on undefined if main is sync)
+// Top-level execution (works if main is sync or async)
 try {
   await main();
 } catch (e) {
