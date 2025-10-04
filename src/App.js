@@ -19,7 +19,6 @@ import Checkout from "./component/Checkout";
 import About from "./component/About";
 import Contact from "./component/Contact";
 import Exit from "./component/Exit";
-import AuthSection from "./component/AuthSection";
 import ProtectedPage from "./component/ProtectedPage";
 import NotFound from "./component/NotFound";
 
@@ -192,9 +191,6 @@ const AppWrapper = () => {
                   </RequireAuth>
                 }
               />
-
-              {/* Demo/testing */}
-              <Route path="/authSection" element={<AuthSection />} />
 
               {/* 404 catch-all (last) */}
               <Route path="*" element={<NotFound />} />

@@ -106,7 +106,6 @@ tools/
 | `/checkout`        | Demo checkout form & order summary (protected)                          |
 | `/exit`            | Order success / “thank you” page (protected)                            |
 | `/protected`       | Example page visible only to authenticated users (guarded)              |
-| `/authSection`     | Auth entry/controls area (login/signup/profile quick actions)           |
 | `*`                | 404 Not Found (soft 404 with `noindex`, helpful CTAs)                   |
 
 ---

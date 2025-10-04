@@ -162,6 +162,7 @@ const SKIP_FILES = new Set([
   ".eslintignore",
   "package-lock.json",
   "tailwind.config.js",
+  "prodData.js",
 ]);
 
 function isLicenseFile(file) {
