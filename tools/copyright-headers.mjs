@@ -53,7 +53,6 @@ const EXT_STYLE = {
   ".env.local": "line",
   ".env.example": "line",
   ".txt": "line",
-  ".md": "md"
 };
 
 function main() {
