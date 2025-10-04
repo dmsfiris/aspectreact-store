@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "headers:check": "node tools/copyright-headers.mjs --owner \"Dimitrios S. Sfyris\" --default-start 2025 --check",
     "headers:apply": "node tools/copyright-headers.mjs --owner \"Dimitrios S. Sfyris\" --default-start 2025",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:ci": "react-scripts test --watchAll=false"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.0.0",
