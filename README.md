@@ -282,9 +282,27 @@ npm run build
 
 ## Performance Notes
 
-- Minimal client state; cart via `react-use-cart`; product data is static for the demo.  
-- Centralized currency formatting.  
-- Lazy‑loaded images in catalog views.
+A quick look at choices in this codebase that keep it fast and lean in production:
+
+- **Simple state model:** No heavy global store (Redux/MobX). Cart is handled by a small, focused provider (`react-use-cart`), keeping re‑renders localized to consumers.
+- **Cart persistence that doesn’t thrash:** Cart data is stored in `localStorage` and updated only on cart actions; guest→user merge runs once at login and de‑duplicates by product id.
+- **Auth activated only when needed:** The Auth0 provider is *rendered* only in `auth0` mode; in `local`/`api` modes the app runs without that runtime overhead.
+- **Route-centric architecture:** Pages are split into self‑contained components, making it straightforward to adopt route‑level code splitting (`React.lazy`) without restructuring.
+- **Production CRA build:** `react-scripts build` outputs content‑hashed, minified bundles with vendor/app chunking via Webpack’s SplitChunks, enabling long‑term HTTP caching.
+- **Tailwind kept tight:** In production, unused utility classes are purged, yielding a compact CSS file. The forms/typography plugins add styles only when their classes are used.
+- **Tiny icon payloads:** Icons are imported individually (e.g., a single `HiOutlineShoppingCart`), allowing tree‑shaking to avoid shipping entire icon packs.
+- **No runtime i18n framework:** Currency and locale formatting rely on the native `Intl.NumberFormat`, avoiding extra dependencies and keeping number formatting fast.
+- **Static demo data:** The catalog uses static data for the demo, so the app avoids client‑side waterfalls and remains interactive immediately after load.
+- **Clean separation of concerns:** `lib/config`, `lib/auth`, and `lib/format` keep logic isolated, reducing prop‑drilling and keeping components shallow for faster renders.
+- **Scroll behavior tuned for UX:** A lightweight `ScrollToTop` resets scroll on navigation without adding heavy scroll management libraries.
+- **Accessible-by-default UI:** Semantic markup and form validation reduce layout thrash and improve focus handling without extra JS.
+- **Hosting‑friendly SPA:** The output is a static bundle that can be served from any CDN/host with gzip/brotli and cache‑headers for excellent TTFB and repeat‑visit speeds.
+
+### Ready when you need more
+If the catalog or pages grow substantially, the structure already supports:
+- **Route‑level code splitting** with `React.lazy` and `<Suspense>`.
+- **List virtualization** for very long product lists (React Window/Virtual).
+- **Image optimization** (AVIF/WebP, responsive `srcset`) on real assets.
 
 ---
 

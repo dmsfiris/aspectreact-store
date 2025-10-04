@@ -9,6 +9,7 @@
  * - .env* (e.g., .env, .env.local, .env.example)
  * - Shell scripts: .sh, .bash
  * - HTML: .html, .htm
+ * - Specific files: .gitignore, .eslintignore, package-lock.json, tailwind.config.js
  *
  * Usage:
  *   node tools/copyright-headers.mjs             # apply (write mode)
@@ -155,6 +156,14 @@ const SKIP_EXTS = new Set([
   ".bash",
 ]);
 
+// Skip these specific filenames (anywhere in repo)
+const SKIP_FILES = new Set([
+  ".gitignore",
+  ".eslintignore",
+  "package-lock.json",
+  "tailwind.config.js",
+]);
+
 function isLicenseFile(file) {
   const n = basename(file).toLowerCase();
   return n === "license" || n.startsWith("license.");
@@ -176,17 +185,18 @@ function includeFile(file) {
   if (isLicenseFile(file)) return false;
   if (isEnvDotfile(file)) return false;
 
+  const base = basename(file);
+  if (SKIP_FILES.has(base)) return false;
+
   const ext = extname(file).toLowerCase();
   if (SKIP_EXTS.has(ext)) return false;
 
   // Known styles by extension
   if (EXT_STYLE[ext]) return true;
 
-  // Dotfiles without extension (e.g., .gitignore, .npmrc)
+  // Dotfiles without extension (e.g., .gitignore would be caught above)
   if (/^\./.test(file)) {
-    // if it had an extension (e.g., .eslintrc.json), it was already skipped by SKIP_EXTS
-    // keep plain dotfiles (line style), except .env* which we skipped above
-    return true;
+    return true; // keep plain dotfiles like .npmrc, .editorconfig if you want headers there
   }
 
   return false;
