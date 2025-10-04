@@ -42,6 +42,7 @@ function ProductCard({ product, onAdd }) {
 
       <button
         onClick={() => onAdd(product)}
+        aria-label={`Add ${product.title} to cart`}
         className="mt-4 w-full rounded-xl bg-ink text-white py-2.5 text-sm font-medium hover:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
         Add to cart
@@ -96,10 +97,10 @@ const Product = () => {
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header / filters */}
-      <div className="mb-6 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6">
+      <div className="mb-6 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-card">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-ink">Shop</h1>
+            <h1 className="font-display text-2xl font-semibold text-ink">Shop</h1>
             <p className="text-neutral-600">Explore our latest products.</p>
           </div>
 
@@ -112,11 +113,22 @@ const Product = () => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search products…"
-                className="w-full rounded-xl border-neutral-300 pr-10 focus:border-primary focus:ring-primary"
+                className="w-full rounded-xl border-neutral-300 bg-white pr-10 focus:border-primary focus:ring-primary"
               />
               <span className="pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-neutral-400">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </span>
             </label>
@@ -127,7 +139,7 @@ const Product = () => {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
+                className="w-full rounded-xl border-neutral-300 bg-white focus:border-primary focus:ring-primary"
               >
                 {categories.map((c) => (
                   <option key={c} value={c}>
@@ -143,7 +155,7 @@ const Product = () => {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
+                className="w-full rounded-xl border-neutral-300 bg-white focus:border-primary focus:ring-primary"
               >
                 {SORTS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -170,16 +182,22 @@ const Product = () => {
         Showing <span className="font-medium">{products.length}</span>{" "}
         {products.length === 1 ? "item" : "items"}
         {category !== "All" && (
-          <> in <span className="font-medium">{category}</span></>
+          <>
+            {" "}
+            in <span className="font-medium">{category}</span>
+          </>
         )}
         {query && (
-          <> for “<span className="font-medium">{query}</span>”</>
+          <>
+            {" "}
+            for “<span className="font-medium">{query}</span>”
+          </>
         )}
       </div>
 
       {/* Grid */}
       {products.length === 0 ? (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center shadow-card">
           <p className="text-lg font-medium">No products found</p>
           <p className="mt-1 text-neutral-500">Try adjusting filters or search.</p>
         </div>

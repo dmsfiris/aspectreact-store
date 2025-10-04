@@ -1,7 +1,10 @@
+// src/component/Cart.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useCart } from "react-use-cart";
+import { toast } from "react-hot-toast";
 import { formatCurrency } from "../lib/format";
+import { useAuth } from "../lib/auth";
 
 const Cart = () => {
   const {
@@ -12,6 +15,19 @@ const Cart = () => {
     removeItem,
     emptyCart,
   } = useCart();
+
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
+
+  function handleRemove(id, title) {
+    removeItem(id);
+    toast.success(`Removed “${title}”`);
+  }
+
+  function handleEmpty() {
+    emptyCart();
+    toast.success("Cart cleared");
+  }
 
   if (isEmpty) {
     return (
@@ -68,7 +84,7 @@ const Cart = () => {
                         updateItemQuantity(item.id, Math.max(1, item.quantity - 1))
                       }
                       className="h-9 w-9 text-lg"
-                      aria-label="Decrease quantity"
+                      aria-label={`Decrease quantity of ${item.title}`}
                     >
                       −
                     </button>
@@ -76,14 +92,14 @@ const Cart = () => {
                     <button
                       onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
                       className="h-9 w-9 text-lg"
-                      aria-label="Increase quantity"
+                      aria-label={`Increase quantity of ${item.title}`}
                     >
                       +
                     </button>
                   </div>
 
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => handleRemove(item.id, item.title)}
                     className="text-sm text-danger hover:underline"
                   >
                     Remove
@@ -136,7 +152,7 @@ const Cart = () => {
             </Link>
 
             <button
-              onClick={emptyCart}
+              onClick={handleEmpty}
               className="mt-3 w-full text-sm text-neutral-600 hover:text-ink"
             >
               Empty cart
@@ -144,15 +160,21 @@ const Cart = () => {
 
             <Link
               to="/product"
-              className="mt-1 block w-full text-sm text-neutral-600 hover:text-ink"
+              aria-current={location.pathname === "/product" ? "page" : undefined}
+              className={`mt-1 block w-full text-sm transition-colors ${
+                location.pathname === "/product"
+                  ? "text-primary font-medium"
+                  : "text-neutral-600 hover:text-ink"
+              }`}
             >
               Continue shopping
             </Link>
           </div>
 
           <p className="mt-3 text-xs text-neutral-500">
-            Prices and availability are subject to change. Your cart is saved on
-            this device.
+            {isAuthenticated
+              ? `Cart is saved to your ${user?.email ? `account (${user.email})` : "account"} on this device.`
+              : "Cart is saved on this device (guest). Sign in to keep it per account."}
           </p>
         </aside>
       </div>

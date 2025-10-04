@@ -1,13 +1,19 @@
+// src/component/Navbar.jsx
 import React from "react";
 import { Disclosure } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  Bars3Icon,
+  XMarkIcon,
+  LockClosedIcon,
+} from "@heroicons/react/24/outline";
 import { HiOutlineShoppingCart } from "react-icons/hi";
 import { useCart } from "react-use-cart";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import AuthSection from "./AuthSection";
 import eCom from "../assets/eCom.png";
-import { APP_NAME } from "../lib/config";
+import { APP_NAME, AUTH_MODE } from "../lib/config";
+import { useAuth } from "../lib/auth";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -22,6 +28,23 @@ function classNames(...classes) {
 
 const Navbar = () => {
   const { isEmpty, totalItems } = useCart();
+  const { isAuthenticated, login, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      navigate("/", { replace: true });
+    }
+  };
+
+  // Nested route highlighting (e.g., /product/123)
+  const isRouteActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/80 backdrop-blur">
@@ -47,33 +70,65 @@ const Navbar = () => {
 
                 {/* Desktop nav */}
                 <nav className="hidden md:flex items-center gap-6">
-                  {navigation.map((item) => (
+                  {navigation.map((item) => {
+                    const isActive = isRouteActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        aria-current={isActive ? "page" : undefined}
+                        className={classNames(
+                          "text-sm px-2 py-1 rounded-lg transition-colors",
+                          isActive
+                            ? "text-primary font-medium"
+                            : "text-neutral-600 hover:text-ink"
+                        )}
+                      >
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+
+                  {/* Protected link (only when logged in) */}
+                  {isAuthenticated && (
                     <Link
-                      key={item.href}
-                      to={item.href}
-                      className="text-sm text-neutral-600 hover:text-ink px-2 py-1 rounded-lg transition-colors"
+                      to="/protected"
+                      aria-current={isRouteActive("/protected") ? "page" : undefined}
+                      className={classNames(
+                        "flex items-center gap-1 text-sm px-2 py-1 rounded-lg transition-colors",
+                        isRouteActive("/protected")
+                          ? "text-primary font-medium"
+                          : "text-neutral-600 hover:text-ink"
+                      )}
                     >
-                      {item.name}
+                      <LockClosedIcon className="h-4 w-4" />
+                      Protected
                     </Link>
-                  ))}
+                  )}
                 </nav>
 
                 {/* Right side: Cart + Auth + Mobile menu */}
                 <div className="flex items-center gap-2">
                   <Link
                     to="/cart"
-                    className="relative rounded-xl border border-neutral-200 px-3 py-2 hover:shadow-card transition"
+                    aria-current={isRouteActive("/cart") ? "page" : undefined}
+                    className={classNames(
+                      "relative rounded-xl border border-neutral-200 px-3 py-2 hover:shadow-card transition",
+                      isRouteActive("/cart") && "ring-2 ring-primary"
+                    )}
                     aria-label="Open cart"
+                    title="Cart"
                   >
                     <HiOutlineShoppingCart className="h-5 w-5 text-neutral-700" />
                     {!isEmpty && (
-                      <span className="absolute -top-1 -right-1 grid h-5 min-w-[20px] place-items-center rounded-full bg-primary text-white text-xs px-1">
+                      <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 grid h-5 min-w-[20px] place-items-center rounded-full bg-primary text-white text-xs px-1">
                         {totalItems}
                       </span>
                     )}
                   </Link>
 
-                  <AuthSection />
+                  {/* Desktop: AuthSection handles its own mode */}
+                  <AuthSection onLogout={handleLogout} />
 
                   <div className="md:hidden">
                     <Disclosure.Button className="ml-1 inline-flex items-center justify-center rounded-xl border border-neutral-200 p-2 text-neutral-700 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
@@ -92,21 +147,102 @@ const Navbar = () => {
             {/* Mobile panel */}
             <Disclosure.Panel className="md:hidden">
               <div className="space-y-1 px-3 pb-3 pt-2">
-                {navigation.map((item) => (
+                {navigation.map((item) => {
+                  const isActive = isRouteActive(item.href);
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={classNames(
+                        "block rounded-lg px-3 py-2 text-base font-medium",
+                        isActive
+                          ? "text-primary font-medium"
+                          : "text-neutral-700 hover:bg-neutral-100 hover:text-ink"
+                      )}
+                    >
+                      {item.name}
+                    </Link>
+                  );
+                })}
+
+                {/* Protected link */}
+                {isAuthenticated && (
                   <Link
-                    key={item.name}
-                    to={item.href}
+                    to="/protected"
+                    aria-current={isRouteActive("/protected") ? "page" : undefined}
                     className={classNames(
-                      "block rounded-lg px-3 py-2 text-base font-medium",
-                      "text-neutral-700 hover:bg-neutral-100 hover:text-ink"
+                      "flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium",
+                      isRouteActive("/protected")
+                        ? "text-primary font-medium"
+                        : "text-neutral-700 hover:bg-neutral-100 hover:text-ink"
                     )}
                   >
-                    {item.name}
+                    <LockClosedIcon className="h-5 w-5" />
+                    <span>Protected</span>
                   </Link>
-                ))}
+                )}
+
+                {/* Mobile auth controls */}
+                {!isAuthenticated && (
+                  <>
+                    {AUTH_MODE === "auth0" ? (
+                      <button
+                        onClick={() => login({ returnTo: location.pathname })}
+                        className="block w-full rounded-lg border border-neutral-300 px-3 py-2 text-left text-base font-medium text-neutral-700 hover:bg-neutral-50"
+                      >
+                        Sign in
+                      </button>
+                    ) : (
+                      <>
+                        <Link
+                          to="/login"
+                          state={{ from: location }}
+                          className={classNames(
+                            "block rounded-lg px-3 py-2 text-base font-medium",
+                            isRouteActive("/login")
+                              ? "text-primary font-medium"
+                              : "text-neutral-700 hover:bg-neutral-100 hover:text-ink"
+                          )}
+                        >
+                          Login
+                        </Link>
+                        <Link
+                          to="/signup"
+                          state={{ from: location }}
+                          className={classNames(
+                            "block rounded-lg px-3 py-2 text-base font-medium",
+                            isRouteActive("/signup")
+                              ? "text-primary font-medium"
+                              : "text-neutral-700 hover:bg-neutral-100 hover:text-ink"
+                          )}
+                        >
+                          Sign Up
+                        </Link>
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* Mobile-only Logout */}
+                {isAuthenticated && (
+                  <button
+                    onClick={handleLogout}
+                    className="mt-2 w-full rounded-lg border border-neutral-300 px-3 py-2 text-left text-base font-medium text-neutral-700 hover:bg-neutral-50"
+                  >
+                    Log out
+                  </button>
+                )}
+
                 <Link
                   to="/cart"
-                  className="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium text-neutral-700 hover:bg-neutral-100 hover:text-ink"
+                  aria-current={isRouteActive("/cart") ? "page" : undefined}
+                  className={classNames(
+                    "mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium",
+                    isRouteActive("/cart")
+                      ? "text-primary font-medium"
+                      : "text-neutral-700 hover:bg-neutral-100 hover:text-ink"
+                  )}
                 >
                   <HiOutlineShoppingCart className="h-5 w-5" />
                   <span>Cart</span>

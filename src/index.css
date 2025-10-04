@@ -2,13 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Inter font for a clean, professional look */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 /* Base defaults */
 @layer base {
-  html, body, #root {
+  html,
+  body,
+  #root {
     height: 100%;
   }
   body {
     @apply bg-neutral-50 text-ink font-sans antialiased;
+    font-family: "Inter", system-ui, sans-serif;
   }
   ::selection {
     @apply bg-primary/20;
@@ -30,6 +36,18 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+}
+
+/* Scrollbar styling (subtle, modern look) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300 rounded-full hover:bg-neutral-400;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
 }
 
 /* Material Symbols (for simple icons used in some components) */
