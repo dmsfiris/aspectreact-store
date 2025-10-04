@@ -1,7 +1,5 @@
 > Copyright (C) 2025 Dimitrios S. Sfyris — SPDX-License-Identifier: GPL-3.0-or-later
 
-
-
 # AspectReact Store
 
 AspectReact Store — a clean, modern React e-shop UI built with React Router and Tailwind.
