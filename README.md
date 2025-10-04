@@ -84,20 +84,21 @@ public/
 
 ## Routes
 
-| Path | Purpose |
-|---|---|
-| `/` | |
-| `/product` | |
-| `/about` | |
-| `/contact` | |
-| `/cart` | |
-| `/login` | |
-| `/signup` | |
-| `/forgot-password` | |
-| `/checkout` | |
-| `/exit` | |
-| `/protected` | |
-| `/authSection` | |
+| Path               | Purpose                                                                 |
+|--------------------|-------------------------------------------------------------------------|
+| `/`                | Home page with highlights/featured products                             |
+| `/product`         | Product catalog (search • category filters • sorting)                   |
+| `/about`           | About the store/brand                                                   |
+| `/contact`         | Contact form                                                            |
+| `/cart`            | Shopping cart (add/remove, change quantity, totals)                     |
+| `/login`           | Sign in                                                                 |
+| `/signup`          | Create account                                                          |
+| `/forgot-password` | Request password reset                                                  |
+| `/checkout`        | Demo checkout form & order summary                                      |
+| `/exit`            | Order success / “thank you” page                                        |
+| `/protected`       | Example page visible only to authenticated users (guarded)              |
+| `/authSection`     | Auth entry/controls area (login/signup/profile quick actions)           |
+
 
 ---
 
