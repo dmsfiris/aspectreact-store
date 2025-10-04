@@ -4,7 +4,7 @@
  */
 // Small helper to coerce env strings to boolean
 const toBool = (val, fallback = false) => {
-  if (val === undefined) return fallback;
+  if (val === undefined || val === null) return fallback;
   return ["1", "true", "yes", "on"].includes(String(val).toLowerCase());
 };
 
@@ -18,8 +18,9 @@ export const CURRENCY = process.env.REACT_APP_CURRENCY || "USD";
 // ────────────────────────────────────────────
 // Auth mode
 // Options: "auth0" | "local" | "api"
+// (Default aligned with .env.example -> "local")
 // ────────────────────────────────────────────
-export const AUTH_MODE = (process.env.REACT_APP_AUTH_MODE || "auth0").toLowerCase();
+export const AUTH_MODE = (process.env.REACT_APP_AUTH_MODE || "local").toLowerCase();
 export const IS_AUTH0 = AUTH_MODE === "auth0";
 export const IS_LOCAL = AUTH_MODE === "local";
 export const IS_API = AUTH_MODE === "api";
@@ -30,15 +31,20 @@ export const IS_API = AUTH_MODE === "api";
 export const ENABLE_TOASTS = toBool(process.env.REACT_APP_ENABLE_TOASTS, true);
 
 // ────────────────────────────────────────────
-// API (used in "api" auth mode and future data calls)
+/** API (used in "api" auth mode and future data calls) */
 // ────────────────────────────────────────────
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
 // ────────────────────────────────────────────
-// Auth0 (used only when AUTH_MODE === "auth0")
+/** Auth0 (used only when AUTH_MODE === "auth0") */
 // ────────────────────────────────────────────
 export const AUTH0_DOMAIN = process.env.REACT_APP_AUTH0_DOMAIN || "";
 export const AUTH0_CLIENT_ID = process.env.REACT_APP_AUTH0_CLIENT_ID || "";
+
+// ────────────────────────────────────────────
+/** Support / Contact (used e.g. on NotFound page) */
+// ────────────────────────────────────────────
+export const SUPPORT_EMAIL = process.env.REACT_APP_SUPPORT_EMAIL || "support@yourdomain.com";
 
 // ────────────────────────────────────────────
 // Optional integrations (kept here for future use)

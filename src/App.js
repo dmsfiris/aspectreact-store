@@ -23,6 +23,7 @@ import Contact from "./component/Contact";
 import Exit from "./component/Exit";
 import AuthSection from "./component/AuthSection";
 import ProtectedPage from "./component/ProtectedPage";
+import NotFound from "./component/NotFound";
 
 import Login from "./component/Login";
 import Signup from "./component/Signup";
@@ -240,6 +241,9 @@ const AppWrapper = () => {
 
               {/* Demo/testing */}
               <Route path="/authSection" element={<AuthSection />} />
+
+              {/* 404 catch-all (last) */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
 
