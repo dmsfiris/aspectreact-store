@@ -1,0 +1,69 @@
+# Copyright (C) 2025 Dimitrios S. Sfyris
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - "**/*.md"
+      - "LICENSE"
+      - ".gitignore"
+      - ".husky/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci || npm i
+
+      - name: Check SPDX headers
+        run: node tools/copyright-headers.mjs --owner "Dimitrios S. Sfyris" --default-start 2025 --check
+
+      - name: Lint
+        run: npm run lint -- --ext .js,.jsx
+
+      - name: Tests
+        env:
+          CI: true
+        run: npm test -- --watchAll=false
+
+      - name: Build (CRA)
+        env:
+          CI: true
+          REACT_APP_APP_NAME: AspectReact Store
+          REACT_APP_DEFAULT_LOCALE: ${{ vars.REACT_APP_DEFAULT_LOCALE || 'en-US' }}
+          REACT_APP_CURRENCY: ${{ vars.REACT_APP_CURRENCY || 'USD' }}
+          REACT_APP_ENABLE_TOASTS: ${{ vars.REACT_APP_ENABLE_TOASTS || 'true' }}
+          REACT_APP_AUTH_MODE: ${{ vars.REACT_APP_AUTH_MODE || 'none' }}
+          REACT_APP_API_BASE_URL: ${{ vars.REACT_APP_API_BASE_URL || '' }}
+          REACT_APP_AUTH0_DOMAIN: ${{ secrets.REACT_APP_AUTH0_DOMAIN }}
+          REACT_APP_AUTH0_CLIENT_ID: ${{ secrets.REACT_APP_AUTH0_CLIENT_ID }}
+        run: npm run build
+
+      - name: Upload production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build
+          retention-days: 7
