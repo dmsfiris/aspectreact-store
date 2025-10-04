@@ -1,4 +1,7 @@
-// src/index.js
+/*
+ * Copyright (C) 2025 Dimitrios S. Sfyris
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Auth0Provider } from "@auth0/auth0-react";

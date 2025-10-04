@@ -1,5 +1,7 @@
-// src/lib/config.js
-
+/*
+ * Copyright (C) 2025 Dimitrios S. Sfyris
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 // Small helper to coerce env strings to boolean
 const toBool = (val, fallback = false) => {
   if (val === undefined) return fallback;

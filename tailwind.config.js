@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2025 Dimitrios S. Sfyris
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],

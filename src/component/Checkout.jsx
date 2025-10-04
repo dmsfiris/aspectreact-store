@@ -1,4 +1,7 @@
-// src/component/Checkout.jsx
+/*
+ * Copyright (C) 2025 Dimitrios S. Sfyris
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "react-use-cart";

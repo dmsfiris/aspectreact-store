@@ -1,3 +1,5 @@
+# Copyright (C) 2025 Dimitrios S. Sfyris
+# SPDX-License-Identifier: GPL-3.0-or-later
 {
   "root": true,
   "env": { "browser": true, "es2022": true, "node": true, "jest": true },

@@ -1,4 +1,7 @@
-// src/App.jsx
+/*
+ * Copyright (C) 2025 Dimitrios S. Sfyris
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 import React, { useEffect, useRef, useState } from "react";
 import {
   BrowserRouter as Router,

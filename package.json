@@ -2,13 +2,18 @@
   "name": "aspectreact-store",
   "version": "1.0.0",
   "private": true,
+  "license": "GPL-3.0-or-later",
+  "author": "Dimitrios S. Sfyris",
   "description": "AspectReact Store — a clean, modern React e-shop UI built with React Router and Tailwind.",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "headers:check": "node tools/copyright-headers.mjs --owner \"Dimitrios S. Sfyris\" --default-start 2025 --check",
+    "headers:apply": "node tools/copyright-headers.mjs --owner \"Dimitrios S. Sfyris\" --default-start 2025",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.0.0",
@@ -33,7 +38,8 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.10"
+    "tailwindcss": "^3.4.10",
+    "husky": "^8.0.0"
   },
   "browserslist": {
     "production": [

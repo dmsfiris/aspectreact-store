@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2025 Dimitrios S. Sfyris
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 import React, { useMemo, useState } from "react";
 import { useCart } from "react-use-cart";
 import prodData from "../data/prodData";

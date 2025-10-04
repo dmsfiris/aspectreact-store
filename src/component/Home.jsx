@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2025 Dimitrios S. Sfyris
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 import React from "react";
 import { Link } from "react-router-dom";
 import { APP_NAME } from "../lib/config";

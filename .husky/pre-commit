@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# Copyright (C) 2025 Dimitrios S. Sfyris
+# SPDX-License-Identifier: GPL-3.0-or-later
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "→ Adding/refreshing SPDX headers…"
+npm run headers:apply
+
+# re-stage changes if any files were modified
+git add -A
