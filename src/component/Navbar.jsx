@@ -51,18 +51,21 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/80 backdrop-blur">
-      <Disclosure as="nav">
+      {/* key={location.pathname} ensures the Disclosure remounts (auto-closes) on route change */}
+      <Disclosure as="nav" key={location.pathname}>
         {({ open }) => (
           <>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center justify-between">
                 {/* Brand */}
                 <div className="flex items-center gap-3">
-                  <Link to="/" className="flex items-center gap-2">
+                  <Link to="/" className="flex items-center gap-2" aria-label={`${APP_NAME} home`}>
                     <img
                       src={eCom}
-                      alt={`${APP_NAME} brand logo`}
+                      alt={`${APP_NAME} logo`}
                       className="h-8 w-8"
+                      width="32"
+                      height="32"
                       loading="eager"
                     />
                     <span className="font-display text-xl tracking-tight text-ink">
@@ -134,8 +137,11 @@ const Navbar = () => {
                   <AuthSection onLogout={handleLogout} />
 
                   <div className="md:hidden">
-                    <Disclosure.Button className="ml-1 inline-flex items-center justify-center rounded-xl border border-neutral-200 p-2 text-neutral-700 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                      <span className="sr-only">Open main menu</span>
+                    <Disclosure.Button
+                      className="ml-1 inline-flex items-center justify-center rounded-xl border border-neutral-200 p-2 text-neutral-700 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                      aria-label={open ? "Close menu" : "Open menu"}
+                    >
+                      <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
                       {open ? (
                         <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
                       ) : (

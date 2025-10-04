@@ -3,17 +3,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 import React, { useEffect, useRef, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CartProvider } from "react-use-cart";
 import { Toaster, toast } from "react-hot-toast";
 
 import Navbar from "./component/Navbar";
+import Footer from "./component/Footer";
+import ScrollToTop from "./component/ScrollToTop";
+
 import Home from "./component/Home";
 import Product from "./component/Product";
 import Cart from "./component/Cart";
@@ -29,59 +26,8 @@ import Login from "./component/Login";
 import Signup from "./component/Signup";
 import ForgotPassword from "./component/ForgotPassword";
 
-import { APP_NAME, AUTH_MODE } from "./lib/config";
+import { AUTH_MODE } from "./lib/config";
 import { RequireAuth, useAuth, getUserId } from "./lib/auth";
-
-/* ---------------- Footer ---------------- */
-const Footer = () => {
-  const location = useLocation();
-  const footerLinks = [
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-  ];
-  const isRouteActive = (path) =>
-    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
-
-  return (
-    <footer className="border-t border-neutral-200 py-8">
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 text-sm text-neutral-600">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
-          </p>
-
-          <nav className="flex gap-4" aria-label="Footer">
-            {footerLinks.map((link) => {
-              const isActive = isRouteActive(link.href);
-              return (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`transition-colors ${
-                    isActive
-                      ? "text-primary font-medium"
-                      : "text-neutral-600 hover:text-ink"
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-            <a
-              href="https://tailwindcss.com/"
-              target="_blank"
-              rel="noreferrer"
-              className="transition-colors text-neutral-600 hover:text-ink"
-            >
-              Built with Tailwind
-            </a>
-          </nav>
-        </div>
-      </div>
-    </footer>
-  );
-};
 
 /* --------- Cart key helpers & merge --------- */
 const GUEST_KEY = "cart_guest";
@@ -177,6 +123,11 @@ const AppWrapper = () => {
       setCartKey(targetKey);
     }
 
+    // Logged in -> Logged in as a different user (account switch)
+    if (prevUserId && userId && prevUserId !== userId) {
+      setCartKey(makeUserKey(userId));
+    }
+
     // Logged in -> Logged out: switch back to guest cart
     if (prevUserId && !userId) {
       setCartKey(GUEST_KEY);
@@ -188,12 +139,14 @@ const AppWrapper = () => {
   const redirectForProtected = AUTH_MODE === "auth0" ? "/" : "/login";
 
   return (
-    <CartProvider id={cartKey}>
+    // key={cartKey} forces a clean remount on key change (prevents state leakage)
+    <CartProvider id={cartKey} key={cartKey}>
       <Router>
         <div className="min-h-screen bg-neutral-50 text-ink">
           <Toaster position="bottom-right" />
 
           <Navbar />
+          <ScrollToTop />
 
           <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
             <Routes>

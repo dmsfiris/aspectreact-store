@@ -1,5 +1,3 @@
-# Copyright (C) 2025 Dimitrios S. Sfyris
-# SPDX-License-Identifier: GPL-3.0-or-later
 name: CI
 
 on:
@@ -12,6 +10,7 @@ on:
       - "LICENSE"
       - ".gitignore"
       - ".husky/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,8 +24,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout (full history for SPDX year ranges)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -37,8 +38,10 @@ jobs:
       - name: Install dependencies
         run: npm ci || npm i
 
+      # If you prefer hardcoding owner/start, keep your old command.
+      # Here we rely on package.json "config" or env vars (COPYRIGHT_OWNER, COPYRIGHT_START, SPDX_ID)
       - name: Check SPDX headers
-        run: node tools/copyright-headers.mjs --owner "Dimitrios S. Sfyris" --default-start 2025 --check
+        run: node tools/copyright-headers.mjs --check
 
       - name: Lint
         run: npm run lint -- --ext .js,.jsx

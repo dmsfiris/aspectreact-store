@@ -2,11 +2,13 @@
  * Copyright (C) 2025 Dimitrios S. Sfyris
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "react-use-cart";
 import { formatCurrency } from "../lib/format";
 import { useAuth } from "../lib/auth";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -30,6 +32,9 @@ const Checkout = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // Refs to focus the first invalid field after submit
+  const fieldRefs = useRef({});
+
   // Prefill user info if authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -49,7 +54,7 @@ const Checkout = () => {
           <h1 className="font-display text-2xl font-semibold text-ink">
             Your cart is empty
           </h1>
-        <p className="mt-1 text-neutral-600">
+          <p className="mt-1 text-neutral-600">
             Add some products to proceed to checkout.
           </p>
           <Link
@@ -68,39 +73,51 @@ const Checkout = () => {
     setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
   }
 
-  function validate() {
+  function validate(current = form) {
     const e = {};
-    if (!form.firstName.trim()) e.firstName = "Required";
-    if (!form.lastName.trim()) e.lastName = "Required";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email";
-    if (!form.address1.trim()) e.address1 = "Required";
-    if (!form.city.trim()) e.city = "Required";
-    if (!form.zip.trim()) e.zip = "Required";
-    if (!form.country.trim()) e.country = "Required";
-    if (!form.agree) e.agree = "You must agree to continue";
+    if (!current.firstName.trim()) e.firstName = "Required";
+    if (!current.lastName.trim()) e.lastName = "Required";
+    if (!EMAIL_RE.test(current.email)) e.email = "Enter a valid email";
+    if (!current.address1.trim()) e.address1 = "Required";
+    if (!current.city.trim()) e.city = "Required";
+    if (!current.zip.trim()) e.zip = "Required";
+    if (!current.country.trim()) e.country = "Required";
+    if (!current.agree) e.agree = "You must agree to continue";
     return e;
   }
 
   const canSubmit = (() => {
-    // compute validity without mutating state
-    const v = {};
-    if (!form.firstName.trim()) v.firstName = true;
-    if (!form.lastName.trim()) v.lastName = true;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) v.email = true;
-    if (!form.address1.trim()) v.address1 = true;
-    if (!form.city.trim()) v.city = true;
-    if (!form.zip.trim()) v.zip = true;
-    if (!form.country.trim()) v.country = true;
-    if (!form.agree) v.agree = true;
-    return !Object.keys(v).length && !submitting;
+    const v = validate();
+    return Object.keys(v).length === 0 && !submitting;
   })();
+
+  function focusFirstInvalid(v) {
+    const order = [
+      "firstName",
+      "lastName",
+      "email",
+      "address1",
+      "city",
+      "state",
+      "zip",
+      "country",
+      "agree",
+    ];
+    const first = order.find((k) => v[k]);
+    if (first && fieldRefs.current[first] && typeof fieldRefs.current[first].focus === "function") {
+      fieldRefs.current[first].focus();
+    }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (submitting) return; // prevent double-submit
     const v = validate();
     setErrors(v);
-    if (Object.keys(v).length) return;
+    if (Object.keys(v).length) {
+      focusFirstInvalid(v);
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -143,6 +160,7 @@ const Checkout = () => {
               <label className="block">
                 <span className="text-sm font-medium">First name</span>
                 <input
+                  ref={(el) => (fieldRefs.current.firstName = el)}
                   name="firstName"
                   value={form.firstName}
                   onChange={handleChange}
@@ -163,6 +181,7 @@ const Checkout = () => {
               <label className="block">
                 <span className="text-sm font-medium">Last name</span>
                 <input
+                  ref={(el) => (fieldRefs.current.lastName = el)}
                   name="lastName"
                   value={form.lastName}
                   onChange={handleChange}
@@ -183,6 +202,7 @@ const Checkout = () => {
               <label className="block sm:col-span-2">
                 <span className="text-sm font-medium">Email</span>
                 <input
+                  ref={(el) => (fieldRefs.current.email = el)}
                   name="email"
                   type="email"
                   value={form.email}
@@ -204,8 +224,10 @@ const Checkout = () => {
               <label className="block sm:col-span-2">
                 <span className="text-sm font-medium">Phone (optional)</span>
                 <input
+                  ref={(el) => (fieldRefs.current.phone = el)}
                   name="phone"
                   type="tel"
+                  inputMode="tel"
                   value={form.phone}
                   onChange={handleChange}
                   autoComplete="tel"
@@ -223,6 +245,7 @@ const Checkout = () => {
               <label className="block sm:col-span-2">
                 <span className="text-sm font-medium">Address line 1</span>
                 <input
+                  ref={(el) => (fieldRefs.current.address1 = el)}
                   name="address1"
                   value={form.address1}
                   onChange={handleChange}
@@ -243,6 +266,7 @@ const Checkout = () => {
               <label className="block sm:col-span-2">
                 <span className="text-sm font-medium">Address line 2 (optional)</span>
                 <input
+                  ref={(el) => (fieldRefs.current.address2 = el)}
                   name="address2"
                   value={form.address2}
                   onChange={handleChange}
@@ -255,6 +279,7 @@ const Checkout = () => {
               <label className="block">
                 <span className="text-sm font-medium">City</span>
                 <input
+                  ref={(el) => (fieldRefs.current.city = el)}
                   name="city"
                   value={form.city}
                   onChange={handleChange}
@@ -275,6 +300,7 @@ const Checkout = () => {
               <label className="block">
                 <span className="text-sm font-medium">State/Region</span>
                 <input
+                  ref={(el) => (fieldRefs.current.state = el)}
                   name="state"
                   value={form.state}
                   onChange={handleChange}
@@ -287,10 +313,12 @@ const Checkout = () => {
               <label className="block">
                 <span className="text-sm font-medium">ZIP / Postal code</span>
                 <input
+                  ref={(el) => (fieldRefs.current.zip = el)}
                   name="zip"
                   value={form.zip}
                   onChange={handleChange}
                   autoComplete="postal-code"
+                  inputMode="numeric"
                   aria-invalid={!!errors.zip}
                   aria-describedby={errors.zip ? "zip-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
@@ -307,6 +335,7 @@ const Checkout = () => {
               <label className="block">
                 <span className="text-sm font-medium">Country</span>
                 <select
+                  ref={(el) => (fieldRefs.current.country = el)}
                   name="country"
                   value={form.country}
                   onChange={handleChange}
@@ -334,6 +363,7 @@ const Checkout = () => {
               {/* Terms */}
               <label className="mt-2 flex items-center gap-2 sm:col-span-2">
                 <input
+                  ref={(el) => (fieldRefs.current.agree = el)}
                   type="checkbox"
                   name="agree"
                   checked={form.agree}

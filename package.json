@@ -12,9 +12,15 @@
   "bugs": {
     "url": "https://github.com/dmsfiris/aspectreact-store/issues"
   },
-  "homepage": "https://github.com/dmsfiris/aspectreact-store#readme",
+  "packageManager": "npm@10",
   "engines": {
-    "node": ">=18"
+    "node": ">=18 <23",
+    "npm": ">=9"
+  },
+  "config": {
+    "copyrightOwner": "Dimitrios S. Sfyris",
+    "copyrightStart": "2025",
+    "spdxId": "GPL-3.0-or-later"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -22,10 +28,10 @@
     "test": "react-scripts test",
     "test:ci": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
-    "lint": "eslint .",
-    "lint:fix": "npm run lint -- --fix",
-    "headers:check": "node tools/copyright-headers.mjs --owner \"Dimitrios S. Sfyris\" --default-start 2025 --check",
-    "headers:apply": "node tools/copyright-headers.mjs --owner \"Dimitrios S. Sfyris\" --default-start 2025",
+    "lint": "eslint . --ext .js,.jsx",
+    "lint:fix": "eslint . --ext .js,.jsx --fix",
+    "headers:check": "node tools/copyright-headers.mjs --check",
+    "headers:apply": "node tools/copyright-headers.mjs",
     "prepare": "husky install"
   },
   "dependencies": {

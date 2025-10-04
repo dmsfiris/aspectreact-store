@@ -1,7 +1,5 @@
 # Copyright (C) 2025 Dimitrios S. Sfyris
 # SPDX-License-Identifier: GPL-3.0-or-later
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -43,3 +41,6 @@ pnpm-debug.log*
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# local maintenance scripts
+tools/local/
