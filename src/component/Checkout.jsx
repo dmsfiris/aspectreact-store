@@ -72,8 +72,7 @@ const Checkout = () => {
     const e = {};
     if (!form.firstName.trim()) e.firstName = "Required";
     if (!form.lastName.trim()) e.lastName = "Required";
-    if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))
-      e.email = "Enter a valid email";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email";
     if (!form.address1.trim()) e.address1 = "Required";
     if (!form.city.trim()) e.city = "Required";
     if (!form.zip.trim()) e.zip = "Required";
@@ -90,7 +89,8 @@ const Checkout = () => {
 
     try {
       setSubmitting(true);
-      await new Promise((r) => setTimeout(r, 600)); // demo delay
+      // Demo delay / here you'd call your API or payment provider
+      await new Promise((r) => setTimeout(r, 600));
       emptyCart();
       navigate("/exit");
     } finally {
@@ -99,7 +99,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-7xl p-4">
       <h1 className="mb-6 font-display text-3xl font-semibold text-ink">
         Checkout
       </h1>
@@ -128,17 +128,12 @@ const Checkout = () => {
                   value={form.firstName}
                   onChange={handleChange}
                   autoComplete="given-name"
-                  aria-describedby={
-                    errors.firstName ? "firstName-error" : undefined
-                  }
+                  aria-describedby={errors.firstName ? "firstName-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
                 />
                 {errors.firstName && (
-                  <p
-                    id="firstName-error"
-                    className="mt-1 text-xs text-danger"
-                  >
+                  <p id="firstName-error" className="mt-1 text-xs text-danger">
                     {errors.firstName}
                   </p>
                 )}
@@ -152,9 +147,7 @@ const Checkout = () => {
                   value={form.lastName}
                   onChange={handleChange}
                   autoComplete="family-name"
-                  aria-describedby={
-                    errors.lastName ? "lastName-error" : undefined
-                  }
+                  aria-describedby={errors.lastName ? "lastName-error" : undefined}
                   className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
                   required
                 />
@@ -201,12 +194,171 @@ const Checkout = () => {
           </section>
 
           {/* Shipping address */}
-          {/* (kept as-is from your version — unchanged) */}
-          {/* ... */}
+          <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
+            <h2 className="font-display text-lg font-semibold text-ink">
+              Shipping address
+            </h2>
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Address 1 */}
+              <label className="block sm:col-span-2">
+                <span className="text-sm font-medium">Address line 1</span>
+                <input
+                  name="address1"
+                  value={form.address1}
+                  onChange={handleChange}
+                  autoComplete="address-line1"
+                  aria-describedby={errors.address1 ? "address1-error" : undefined}
+                  className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
+                  required
+                />
+                {errors.address1 && (
+                  <p id="address1-error" className="mt-1 text-xs text-danger">
+                    {errors.address1}
+                  </p>
+                )}
+              </label>
+
+              {/* Address 2 */}
+              <label className="block sm:col-span-2">
+                <span className="text-sm font-medium">Address line 2 (optional)</span>
+                <input
+                  name="address2"
+                  value={form.address2}
+                  onChange={handleChange}
+                  autoComplete="address-line2"
+                  className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
+                />
+              </label>
+
+              {/* City */}
+              <label className="block">
+                <span className="text-sm font-medium">City</span>
+                <input
+                  name="city"
+                  value={form.city}
+                  onChange={handleChange}
+                  autoComplete="address-level2"
+                  aria-describedby={errors.city ? "city-error" : undefined}
+                  className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
+                  required
+                />
+                {errors.city && (
+                  <p id="city-error" className="mt-1 text-xs text-danger">
+                    {errors.city}
+                  </p>
+                )}
+              </label>
+
+              {/* State/Region */}
+              <label className="block">
+                <span className="text-sm font-medium">State/Region</span>
+                <input
+                  name="state"
+                  value={form.state}
+                  onChange={handleChange}
+                  autoComplete="address-level1"
+                  className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
+                />
+              </label>
+
+              {/* ZIP */}
+              <label className="block">
+                <span className="text-sm font-medium">ZIP / Postal code</span>
+                <input
+                  name="zip"
+                  value={form.zip}
+                  onChange={handleChange}
+                  autoComplete="postal-code"
+                  aria-describedby={errors.zip ? "zip-error" : undefined}
+                  className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
+                  required
+                />
+                {errors.zip && (
+                  <p id="zip-error" className="mt-1 text-xs text-danger">
+                    {errors.zip}
+                  </p>
+                )}
+              </label>
+
+              {/* Country */}
+              <label className="block">
+                <span className="text-sm font-medium">Country</span>
+                <select
+                  name="country"
+                  value={form.country}
+                  onChange={handleChange}
+                  aria-describedby={errors.country ? "country-error" : undefined}
+                  className="mt-1 block w-full rounded-xl border-neutral-300 focus:border-primary focus:ring-primary"
+                  required
+                >
+                  <option value="">Select…</option>
+                  <option value="GR">Greece</option>
+                  <option value="US">United States</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="ES">Spain</option>
+                  <option value="IT">Italy</option>
+                  {/* add more as needed */}
+                </select>
+                {errors.country && (
+                  <p id="country-error" className="mt-1 text-xs text-danger">
+                    {errors.country}
+                  </p>
+                )}
+              </label>
+
+              {/* Terms */}
+              <label className="mt-2 flex items-center gap-2 sm:col-span-2">
+                <input
+                  type="checkbox"
+                  name="agree"
+                  checked={form.agree}
+                  onChange={handleChange}
+                  className="h-4 w-4 rounded border-neutral-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-neutral-700">
+                  I agree to the terms and conditions
+                </span>
+              </label>
+              {errors.agree && (
+                <p className="text-xs text-danger sm:col-span-2">{errors.agree}</p>
+              )}
+            </div>
+          </section>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-2 inline-flex items-center justify-center rounded-xl bg-ink px-5 py-3 text-white shadow-card disabled:opacity-60 hover:bg-neutral-900"
+          >
+            {submitting ? "Processing…" : "Place order"}
+          </button>
         </form>
 
         {/* Order summary */}
-        {/* (also unchanged — just as in your version) */}
+        <aside className="h-fit rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
+          <h2 className="mb-3 font-display text-lg font-semibold text-ink">
+            Order summary
+          </h2>
+          <ul className="divide-y">
+            {items.map((it) => (
+              <li key={it.id} className="py-3 flex items-start justify-between">
+                <div className="mr-4">
+                  <div className="font-medium">{it.name}</div>
+                  <div className="text-sm text-neutral-600">Qty: {it.quantity}</div>
+                </div>
+                <div className="text-right font-medium">
+                  {formatCurrency((it.price || 0) * (it.quantity || 0))}
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex items-center justify-between text-base font-semibold">
+            <span>Total</span>
+            <span>{formatCurrency(cartTotal || 0)}</span>
+          </div>
+        </aside>
       </div>
     </div>
   );
