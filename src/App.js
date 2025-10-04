@@ -10,6 +10,7 @@ import { Toaster, toast } from "react-hot-toast";
 import Navbar from "./component/Navbar";
 import Footer from "./component/Footer";
 import ScrollToTop from "./component/ScrollToTop";
+import BackToTop from "./component/BackToTop";
 
 import Home from "./component/Home";
 import Product from "./component/Product";
@@ -199,6 +200,9 @@ const AppWrapper = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
+
+          {/* Floating “Back to top” button (appears after scrolling ~400px) */}
+          <BackToTop threshold={400} />
 
           <Footer />
         </div>
